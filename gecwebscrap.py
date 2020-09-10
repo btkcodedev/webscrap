@@ -1,3 +1,4 @@
+#code not complete, error while parsing the html
 from urllib.request import urlopen as ureq
 from bs4 import BeautifulSoup as soup
 
