@@ -10,10 +10,13 @@ Here I took 3 websites for scraping, they are:
 Libraries
 <ul>
 <li>Beautiful soup html parser
-  <li><a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">Details</a>
-</li>    
-<li>urllib.request</li>
+  <ul><a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">Beautiful Soup Library</a>
+  </ul> </li>   
+<li>urllib.request
+  <ul>It will open a connection, gets a webpage and close it
+  </ul> </li>
   <li>io
-    <li>csv
+    <ul>Helps to write a csv file
+    </ul></li>
 </ul>
 <br>
