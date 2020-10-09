@@ -42,6 +42,7 @@ f.close()  #finally close the file to open it with interface
 
 
 """
+Uses the encoding as utf-16 to get malayalam and english 
 with open(filename,"r+",encoding="utf-16") as f:
     reader = csv.reader(f)
     row1=next(reader)
@@ -60,6 +61,7 @@ else:
     
    
 """
+This uses selenium
 page=requests.get("http://gecskp.ac.in")
 page_content=html.fromstring(page.content)
 items=page_content.xpath('//li/text()')
