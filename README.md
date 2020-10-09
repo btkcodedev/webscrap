@@ -2,7 +2,7 @@
 Here I took 3 websites for scraping, they are: 
 <ul>
   <li> KTU website notification site :: https://ktu.edu.in :: News section
-    <li> GEC SKP for getting news updates :: http://gecskp.ac.in/ :: News Section
+    <li> GEC PKD for getting news and notification updates :: http://gecskp.ac.in/ :: News Section
       <li> CEE Kerala :: http://www.cee-kerala.org/ :: Announcement section
 <br>
  </ul>
