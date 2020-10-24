@@ -4,6 +4,7 @@ Here I took 3 websites for scraping, they are:
   <li> KTU website notification site :: https://ktu.edu.in :: News section
     <li> GEC PKD for getting news and notification updates :: http://gecskp.ac.in/ :: News Section
       <li> CEE Kerala :: http://www.cee-kerala.org/ :: Announcement section
+        <li> Flipkart :: https://www.flipkart.com/ :: News Section
 <br>
  </ul>
 <br>
