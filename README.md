@@ -1,5 +1,5 @@
 # Webscraping to get the updates in a website
-Here I took 3 websites for scraping, they are: 
+Here I took 4 websites for scraping, they are: 
 <ul>
   <li> KTU website notification site :: https://ktu.edu.in :: News section
     <li> GEC PKD for getting news and notification updates :: http://gecskp.ac.in/ :: News Section
