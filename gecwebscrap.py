@@ -7,8 +7,6 @@ import csv                                    #Helps to read csv file
 from email.mime.text import MIMEText          #Email Decoration
 from email.mime.multipart import MIMEMultipart
 
-#username : testscrapmailer@gmail.com pass: testscraper
-
 myurl= 'http://gecskp.ac.in' #provide the required URL
 ucli= ureq(myurl)            #Connect to webpage using URLLIB
 page_html = ucli.read()      #reads the webpage and transfers to a variable
@@ -19,14 +17,25 @@ ucli.close()                 #We should close the connection as the webpage can 
 page_soup = soup(page_html,"html.parser")
 #Specify the tag where brief of needed data can be extracted
 containers = page_soup.findAll("a",{"style":"font-weight: 600; font-style: normal;"},{"href"})
-
-
 #opens a file to save the results
 filename='clgscrap.csv'
+
+try:
+  with open(filename,"r+",encoding="utf-16") as r:
+    checker=[]
+    reader = csv.reader(r, delimiter="\n")
+    for i, line in enumerate(reader):
+        checker=checker+[line]      #Check for the same message or different
+  print(str(checker[2]))
+except Exception as e:
+  err=e
+
 with open(filename,"w+",encoding="utf-16") as f:  # as the file contains malayalam, specifying an external encoding is needed
     headers= "NEWS,LINK\n"
     f.write(headers)                              #specifying headers
-    lis=[] 
+    lis=[]
+    mailbody=[]
+    maillink=[]
     q=0 
     i=0
     for container in containers:
@@ -36,8 +45,10 @@ with open(filename,"w+",encoding="utf-16") as f:  # as the file contains malayal
         if(q==1):
             storage=(news.replace(",","|")+" "+orglink.replace(",","|") + "\n")
         final="News: " + news+ "\n"
-        link="Link: " + orglink + "\n"
-        lis=lis+[final+link] 
+        linker="Link: " + orglink + "\n"
+        mailbody=mailbody+[final]
+        maillink=maillink+[orglink]
+        lis=lis+[final+linker] 
         f.write(news.replace(",","|")+" "+orglink.replace(",","|") + "\n")  #Writing in the file.while Writing,the comma represents the next column
         q=q+1
         i=i+1
@@ -46,11 +57,12 @@ print("Latest\n",lis[1])
 print("Previous\n",lis[2])
 print("All\n",' '.join(lis))
 
-smtp_server = "smtp.gmail.com" 
-port = 587                              # For starttls
-sender="testscrapmailer@gmail.com"
-appkey=input("Enter Password:")
-receiver="farij24645@botfed.com"
+#username : testscrapmailer@gmail.com pass: testscraper
+smtp_server = "smtp.gmail.com"          #using python smtp gmail client
+port = 587                              #For starttls
+sender="testscrapmailer@gmail.com"      #sender
+appkey="testscraper"                    #password
+receiver="farij24645@botfed.com"        #receiver
 context = ssl.create_default_context()
 
 message = MIMEMultipart("alternative")
@@ -63,18 +75,25 @@ text = """\
 GEC SCRAPER: 
 Dear Student,
 The website has been updated by a new notification as follows
-""" +str(lis[1])+ """ <br> Previous Mail: """ +str(lis[2])+ """
+""" +str(mailbody[1])+str(maillink[1])+""".
+Previous Mail: """ +str(mailbody[2])+str(maillink[1])+"""
 """
 
 html = """\
 <html>
   <body>
     <h4 style="text-align:center;">GEC SCRAPER</h4>
-    <h5><p><li>Dear Student,</li></h5>
-    <br>The website has been updated by a new notification as follows,<br>
-    """ +str(lis[1])+ """ <br> Previous Mail: """ +str(lis[2])+ """
+    <p>
+      <h5><i>Dear Student,</i></h5>
+      <br>The website has been updated by a new notification as follows,<br>
+      """ +str(mailbody[1])+ """ <a href="""+str(maillink[1])+""">Details</a>
+      <br> 
+      <br>Previous Mail:<br>
+      """ +str(mailbody[2])+ """ <a href="""+str(maillink[1])+""">Details</a>
     </p>
-    <h4>Thanks</h4>
+    <br>
+    <h4>Thank You.</h4>
+    <br>
     <h6>For Unsubscribing, Click <a href="#">here</a></h6>
   </body>
 </html>
