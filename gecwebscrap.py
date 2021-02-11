@@ -1,4 +1,13 @@
 #Importing all the requirements
+"""
+import pandas as pd
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow,Flow
+from google.auth.transport.requests import Request
+import os
+import pickle
+"""
+
 import requests                               #Helps to send HTTP request(connections)
 from urllib.request import urlopen as ureq    #Helps to get connected with Specified URL's
 from bs4 import BeautifulSoup as soup         #Helps to extract webpages using HTML Parser function
@@ -13,17 +22,35 @@ import gspread                                #Helps with accessing spreadsheets
 from oauth2client.client import GoogleCredentials
 
 #Get Details from spreadsheet
+"""
+sheets_url = "https://docs.google.com/spreadsheets/d/1-Vc3Z-lrrmEXYRlCAXeQq6Be7CGQ6r25jstjCxtwwAM/export?format=csv"
+req = requests.get(sheets_url) 
+url_content = req.content
+csv_file = open('users.csv', 'wb')
+csv_file.write(url_content)
+csv_file.close()
+print("Download successful")
+
+#we'll work on the CSV file to get things done
+
+df = pd.read_csv('users.csv', delimiter=',')
+list_of_rows = [list(row) for row in df.values]
+for l in list_of_rows:
+  print(l[1])
+"""
+
+#Get Details from spreadsheet
 gc = gspread.authorize(GoogleCredentials.get_application_default())
 worksheet = gc.open('Test(Responses)').sheet1
 rows = worksheet.get_all_values()             #get_all_values gives a list of rows.
 df=rows[1:]                                   #Take Email only
-
+rec=[]
 def Extract(lst): 
     return [item[1] for item in lst] 
 rec=Extract(df)                               #Extracting the receivers to rec
  
-filename='clgscrap.csv'                       #Set a filename to save the results
-#Reading the old csv if exists
+filename='drive/MyDrive/clgscrap.csv'         #Results Storage
+#Reading the old csv for previous notification
 checker=[]
 try:
   with open(filename,"r+",encoding="utf-16") as r:
@@ -39,7 +66,7 @@ ucli= ureq(myurl)                             #Connect to webpage using URLLIB
 page_html = ucli.read()                       #reads the webpage and transfers to a variable
 ucli.close()                                  #We should close the connection as the webpage can contain timeout
  
-page_soup = soup(page_html,"html.parser")     #Get the html part using the html.parser function  of beautifulsoup library
+page_soup = soup(page_html,"html.parser")     #Get the html part using the html.parser function of beautifulsoup library
 #Specify the tag where brief of needed data can be extracted
 containers = page_soup.findAll("a",{"style":"font-weight: 600; font-style: normal;"},{"href"})
 
@@ -56,6 +83,9 @@ with open(filename,"w+",encoding="utf-16") as f:  #External encoding to support 
         link = containers[q].get('href')         #Get the exact location inside the brief location
         news = containers[q].text                #Get the text inside the tags using .text function
         orglink = ("http://gecskp.ac.in/"+link)  #Get the link
+        result = link.startswith('http')
+        if(result==1):
+          orglink = link                         #Get the link
         if(q==1):                                #For the checking of new update
             checkernew=news+" "+orglink.replace(" ", "%20")          #Take new update to a variable checkernew
         final="News: " + news+ "\n"
@@ -77,13 +107,15 @@ except Exception as e:
   error=e
   flag=0
 
+print("Previous stored notification: "+str(checker[2]))
+print("Present scraped notification: "+str("['"+checkernew+"']"))
+
 if flag==1:
-  if(str(checker[2])==str("['"+checkernew+"']")):     #Check new update with old update
-                                                      #username : testscrapmailer@gmail.com pass: t*s*s*r*p*r
+  if(str(checker[2])!=str("['"+checkernew+"']")):     #Check new update with old update
+                                                      #username : testscrapmailer@gmail.com pass: testscraper
       smtp_server = "smtp.gmail.com"                  #using python smtp gmail client
-      port = 587                                      #For starttls
       sender="testscrapmailer@gmail.com"              #sender
-      appkey="testscraper"                            #password
+      appkey=input("Enter Password")                  #password
       receiver=rec                                    #receiver
       context = ssl.create_default_context()          #Creating a secure socket connection
   
@@ -110,17 +142,16 @@ if flag==1:
             <br>The website has been updated by a new notification as follows,<br>
             """ +str(mailbody[1])+ """ <a href="""+str(maillink[1])+""">Details</a>
             <br> 
-            <br>Previous Mail:<br>
+            <br>Previous Notification:<br>
             """ +str(mailbody[2])+ """ <a href="""+str(maillink[2])+""">Details</a>
           </p>
           <br>
           <h4>Thank You.</h4>
           <br>
-          <h6>For Unsubscribing, Click <a href="#">here</a></h6>
         </body>
       </html>
       """
-  
+
       # Turn these into plain/html MIMEText objects
       part1 = MIMEText(text, "plain")
       part2 = MIMEText(html, "html")
@@ -132,12 +163,15 @@ if flag==1:
   
       try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as conn:   #Connecting to SMTP
-            conn.login(sender, appkey)                                           #Account login                             
-            for item in rec:                                                     #For everyone in the spreadsheet
-              conn.sendmail(
-                  sender, item, message.as_string()                              #Mail Sent
-              )
-            print("\nMail send successfully!")
+            conn.login(sender, appkey)                                           #Account login           
+            if not rec:                  
+               print("\nNo Senders to send")
+            else:
+              for item in rec:                                                   #For everyone in the spreadsheet
+                  conn.sendmail(
+                      sender, item, message.as_string()                          #Mail Sent
+                  )
+              print("\nMail send successfully!")
       except Exception as e:
         conn.quit()
   else:
